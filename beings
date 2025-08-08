@@ -1,0 +1,792 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An Interactive Guide to Spiritual Exploration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Earthy Harmony -->
+    <!-- Application Structure Plan: A thematic, non-linear, interactive dashboard structure. A fixed header provides top-level navigation to five key areas: Perception, Realms & Beings, Spiritual Journey, Cosmic Lineage, and Belief Systems. The main content area dynamically updates based on user selection. This structure transforms the dense report into a digestible, user-led exploration, prioritizing intuitive discovery over a rigid, linear format. For instance, the 'Realms & Beings' section uses interactive cards and a comparative chart to facilitate understanding of complex entities, a method chosen for its clarity and engagement over plain text. -->
+    <!-- Visualization & Content Choices: 
+        - Perception: Interactive cards (HTML/JS) to explain psychic abilities, chosen for clean organization. A simple HTML/CSS diagram illustrates the Third Eye concept visually. New: A Gemini-powered generator for guided meditation prompts to make the concepts of 'exploring the psyche' and 'tuning into energy' actionable.
+        - Realms & Beings: A comparative bar chart (Chart.js) visualizes the 'Moral Ambiguity' of entities, providing a quick summary. An interactive HTML table allows for deeper comparison. Existing: A Gemini-powered generator for mythical entity descriptions.
+        - Spiritual Journey: An interactive, non-linear process diagram (HTML/CSS/JS) makes the stages of awakening tangible. A doughnut chart (Chart.js) clearly shows the components of 'Inner Work'. New: A Gemini-powered generator for shadow work journal prompts, providing a direct, practical tool for personal growth.
+        - Cosmic Lineage: A conceptual relationship map (HTML/CSS/JS) visualizes how New Age soul concepts interconnect, which is more impactful than a simple list. New: A Gemini-powered narrative generator for pre-birth contracts or twin flame journeys, providing an immersive, creative exploration of these concepts.
+        - Belief Systems: A side-by-side layout and an interactive 'claim vs. critique' component (HTML/JS) present controversial theories with balanced context, promoting critical analysis. New: A Gemini-powered image generator for a spiritual shield visualization and a new dropdown for generating prayers to different divine personages.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5DC; /* Beige */
+            color: #5d4037; /* Warm Brown */
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+            color: #8d6e63; /* Lighter Brown */
+        }
+        .nav-button.active, .nav-button:hover {
+            color: #D4AF37; /* Soft Gold */
+            border-bottom-color: #D4AF37;
+        }
+        .card {
+            background-color: #FFF8E1; /* Cream */
+            border: 1px solid #D4AF37;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+                max-height: 350px;
+            }
+        }
+        .interactive-diagram-node {
+            cursor: pointer;
+            border: 2px solid #8d6e63;
+            transition: all 0.3s ease;
+        }
+        .interactive-diagram-node.selected {
+            background-color: #D4AF37;
+            color: #fff;
+            border-color: #D4AF37;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-text {
+            color: #D4AF37;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#FFF8E1] shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl md:text-2xl font-bold text-[#5d4037]">Interactive Guide to Spiritual Exploration</h1>
+                <nav class="hidden md:flex space-x-4">
+                    <button class="nav-button text-sm font-medium border-b-2 border-transparent pb-1" data-target="perception">Perception</button>
+                    <button class="nav-button text-sm font-medium border-b-2 border-transparent pb-1" data-target="realms">Realms & Beings</button>
+                    <button class="nav-button text-sm font-medium border-b-2 border-transparent pb-1" data-target="journey">Spiritual Journey</button>
+                    <button class="nav-button text-sm font-medium border-b-2 border-transparent pb-1" data-target="lineage">Cosmic Lineage</button>
+                    <button class="nav-button text-sm font-medium border-b-2 border-transparent pb-1" data-target="systems">Belief Systems</button>
+                </nav>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-white border border-[#D4AF37] text-[#5d4037] text-sm rounded-lg focus:ring-[#D4AF37] focus:border-[#D4AF37] block w-full p-2.5">
+                        <option value="perception">Perception</option>
+                        <option value="realms">Realms & Beings</option>
+                        <option value="journey">Spiritual Journey</option>
+                        <option value="lineage">Cosmic Lineage</option>
+                        <option value="systems">Belief Systems</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <section id="perception" class="content-section active fade-in">
+            <h2 class="text-3xl font-bold mb-2 text-center text-[#5d4037]">Perceptual Abilities & Communication</h2>
+            <p class="text-center text-lg text-[#8d6e63] mb-8 max-w-3xl mx-auto">This section explores abilities that transcend the ordinary five senses, offering pathways to receive information and communicate with non-physical realms. Explore the concepts of "clear seeing," "clear hearing," and the role of the "third eye" as a bridge between inner and outer worlds.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-3 text-[#5d4037]">Clairvoyance & Mediumship</h3>
+                    <p class="text-[#8d6e63] text-sm mb-4"><strong>Clairvoyance</strong> is the ability to "see" information psychically, while <strong>Mediumship</strong> is the specific practice of communicating with spirits. A medium may use clairvoyance to receive messages visually.</p>
+                    <p class="text-[#8d6e63] text-sm">These abilities are often seen as tools for guidance, comfort, and understanding that consciousness continues beyond physical death.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-3 text-[#5d4037]">Clairaudience</h3>
+                    <p class="text-[#8d6e63] text-sm mb-4">The auditory equivalent of clairvoyance, <strong>clairaudience</strong> is the ability to "hear" sounds or voices from spiritual or non-physical sources. This can manifest as an inner voice or external sounds not perceptible to others.</p>
+                     <p class="text-[#8d6e63] text-sm">Historically, it's associated with receiving divine messages or guidance from the spirit world.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-lg md:col-span-2 lg:col-span-1">
+                    <h3 class="text-xl font-semibold mb-3 text-[#5d4037]">The Third Eye</h3>
+                    <p class="text-[#8d6e63] text-sm mb-4">Located between the eyebrows, the <strong>Third Eye</strong> (or Ajna chakra) is the center of intuition and foresight. It's seen as the bridge between internal awareness and external psychic perception, often linked physically to the pineal gland.</p>
+                    <p class="text-[#8d6e63] text-sm">Activating it is believed to enhance insight and spiritual connection.</p>
+                </div>
+            </div>
+            <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg mt-8">
+                <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">✨ Guided Meditation Prompt Generator</h3>
+                <p class="text-center text-sm text-[#8d6e63] mb-4">Generate a guided meditation script to help you explore your psyche, tune into your own energy, or connect with your spirit guides.</p>
+                <div class="flex justify-center mb-4">
+                    <button id="generate-meditation-btn" class="bg-[#D4AF37] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors">✨ Generate Meditation Prompt</button>
+                </div>
+                <p id="meditation-loading" class="loading-text text-center" style="display:none;">Thinking...</p>
+                <div id="meditation-output" class="p-4 bg-[#F5F5DC] rounded-lg min-h-[100px] text-sm text-[#5d4037]"></div>
+            </div>
+        </section>
+
+        <section id="realms" class="content-section fade-in">
+            <h2 class="text-3xl font-bold mb-2 text-center text-[#5d4037]">Realms of Existence & Their Inhabitants</h2>
+            <p class="text-center text-lg text-[#8d6e63] mb-8 max-w-3xl mx-auto">Spiritual traditions describe various dimensions beyond our physical world, populated by a diverse array of non-physical entities. This section delves into the concept of the Astral Plane and compares different types of beings, from the morally ambiguous to the overtly adversarial.</p>
+            <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg mb-8">
+                <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">Moral Ambiguity of Non-Physical Entities</h3>
+                <p class="text-center text-sm text-[#8d6e63] mb-4">Unlike a simple good vs. evil binary, many traditions portray non-physical beings with complex motivations. This chart visualizes the spectrum of their perceived moral alignment. Hover over the bars for a quick summary.</p>
+                <div class="chart-container">
+                    <canvas id="moralChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg mb-8">
+                 <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">Comparative Entity Explorer</h3>
+                 <p class="text-center text-sm text-[#8d6e63] mb-6">Click on an entity in the table to learn more about its origins and characteristics.</p>
+                 <div class="flex flex-col md:flex-row gap-6">
+                    <div class="w-full md:w-1/3">
+                        <table class="w-full text-sm text-left text-[#8d6e63]">
+                            <thead class="text-xs text-[#5d4037] uppercase bg-[#F5F5DC]">
+                                <tr><th class="px-6 py-3">Entity</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-[#D4AF37] hover:bg-[#F5F5DC] cursor-pointer entity-row" data-entity="daimon">
+                                    <td class="px-6 py-4 font-medium">Daimon</td>
+                                </tr>
+                                <tr class="border-b border-[#D4AF37] hover:bg-[#F5F5DC] cursor-pointer entity-row" data-entity="jinn">
+                                    <td class="px-6 py-4 font-medium">Jinn</td>
+                                </tr>
+                                <tr class="border-b border-[#D4AF37] hover:bg-[#F5F5DC] cursor-pointer entity-row" data-entity="naga">
+                                    <td class="px-6 py-4 font-medium">Naga</td>
+                                </tr>
+                                <tr class="hover:bg-[#F5F5DC] cursor-pointer entity-row" data-entity="demon">
+                                    <td class="px-6 py-4 font-medium">Demon (Samael)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="entity-details" class="w-full md:w-2/3 p-4 bg-[#F5F5DC] rounded-lg">
+                        <p class="text-[#5d4037]">Select an entity to see details.</p>
+                    </div>
+                 </div>
+            </div>
+            <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">✨ Mythical Entity Description Generator</h3>
+                <p class="text-center text-sm text-[#8d6e63] mb-4">Describe a type of being you're curious about, and I'll generate a detailed description for you. Try "a benevolent ET feline" or "a shapeshifting nature spirit."</p>
+                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <textarea id="entity-prompt-input" class="flex-grow p-2 border border-[#D4AF37] rounded-lg text-sm text-[#5d4037] bg-white" placeholder="e.g., a fiery serpent-like deity with a soft heart" rows="3"></textarea>
+                    <button id="generate-entity-btn" class="bg-[#D4AF37] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors md:w-auto">✨ Generate Description</button>
+                </div>
+                <p id="entity-loading" class="loading-text text-center" style="display:none;">Thinking...</p>
+                <div id="entity-output" class="p-4 bg-[#F5F5DC] rounded-lg min-h-[100px] text-sm text-[#5d4037]"></div>
+            </div>
+        </section>
+
+        <section id="journey" class="content-section fade-in">
+            <h2 class="text-3xl font-bold mb-2 text-center text-[#5d4037]">The Transformative Spiritual Journey</h2>
+            <p class="text-center text-lg text-[#8d6e63] mb-8 max-w-3xl mx-auto">Spiritual evolution is a dynamic, often cyclical process of shedding the old self and embracing a higher state of consciousness. This section explores the concepts of awakening, the challenging "Dark Night of the Soul," and the inner work required for true transformation.</p>
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">The Non-Linear Path of Awakening</h3>
+                    <p class="text-center text-sm text-[#8d6e63] mb-6">Spiritual awakening isn't a straight line. It's a complex journey with different facets. Click on a stage below to explore its meaning.</p>
+                    <div id="awakening-diagram" class="space-y-4">
+                         <div class="flex justify-center items-center gap-4">
+                            <div class="interactive-diagram-node p-3 rounded-lg text-center" data-awakening="mind">Mind</div>
+                            <div class="interactive-diagram-node p-3 rounded-lg text-center" data-awakening="personality">Personality</div>
+                         </div>
+                         <div class="flex justify-center items-center gap-4">
+                            <div class="interactive-diagram-node p-3 rounded-lg text-center" data-awakening="kundalini">Kundalini</div>
+                            <div class="interactive-diagram-node p-3 rounded-lg text-center" data-awakening="soul">Soul</div>
+                         </div>
+                    </div>
+                    <div id="awakening-details" class="mt-6 p-4 bg-[#F5F5DC] rounded-lg min-h-[100px]">
+                        <p class="text-[#5d4037]">Select a stage to see details.</p>
+                    </div>
+                </div>
+                <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">Components of Inner Work</h3>
+                    <p class="text-center text-sm text-[#8d6e63] mb-4">Inner work is essential for clearing psychological blockages. It consists of several key practices that lead to wholeness. Hover over the chart to see each component.</p>
+                    <div class="chart-container h-[300px] max-h-[350px]">
+                        <canvas id="innerWorkChart"></canvas>
+                    </div>
+                    <div class="text-center mt-6">
+                        <button id="generate-shadow-work-btn" class="bg-[#D4AF37] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors">✨ Generate Shadow Work Prompt</button>
+                        <p id="shadow-loading" class="loading-text mt-4" style="display:none;">Thinking...</p>
+                        <div id="shadow-output" class="p-4 mt-4 bg-[#F5F5DC] rounded-lg min-h-[50px] text-sm text-[#5d4037]"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="lineage" class="content-section fade-in">
+            <h2 class="text-3xl font-bold mb-2 text-center text-[#5d4037]">Cosmic Lineage & Soul Connections</h2>
+            <p class="text-center text-lg text-[#8d6e63] mb-8 max-w-3xl mx-auto">Many New Age beliefs propose that our existence is part of a pre-ordained cosmic plan, involving soul contracts, extraterrestrial origins, and profound connections that accelerate our growth. This section visualizes how these concepts interrelate to form a cohesive narrative of a planned spiritual journey.</p>
+            <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg mb-8">
+                <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">The Narrative of Pre-Destined Evolution</h3>
+                <p class="text-center text-sm text-[#8d6e63] mb-6">Click on the concepts below to see how they connect and build upon one another.</p>
+                <div class="relative min-h-[400px] p-4">
+                    <div class="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2">
+                        <div class="interactive-diagram-node p-4 rounded-full text-center" data-lineage="starseed">Starseed</div>
+                    </div>
+                    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div class="interactive-diagram-node p-4 rounded-full text-center" data-lineage="soulgroup">Soul Group</div>
+                    </div>
+                    <div class="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2">
+                        <div class="interactive-diagram-node p-4 rounded-full text-center" data-lineage="twinflame">Twin Flame</div>
+                    </div>
+                     <div class="absolute top-3/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div class="interactive-diagram-node p-4 rounded-full text-center" data-lineage="contract">Pre-Birth Contract</div>
+                    </div>
+                </div>
+                <div id="lineage-details" class="mt-6 p-4 bg-[#F5F5DC] rounded-lg min-h-[120px]">
+                    <p class="text-[#5d4037]">Select a concept to see details.</p>
+                </div>
+            </div>
+            <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">✨ Generate a Soul Story</h3>
+                <p class="text-center text-sm text-[#8d6e63] mb-4">Create a short, personalized narrative about a twin flame journey or a pre-birth contract. Let your imagination guide you!</p>
+                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <button id="generate-lineage-narrative-btn" class="bg-[#D4AF37] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors md:w-auto">✨ Generate Soul Story</button>
+                </div>
+                <p id="lineage-loading" class="loading-text text-center" style="display:none;">Thinking...</p>
+                <div id="lineage-output" class="p-4 bg-[#F5F5DC] rounded-lg min-h-[100px] text-sm text-[#5d4037]"></div>
+            </div>
+        </section>
+
+        <section id="systems" class="content-section fade-in">
+            <h2 class="text-3xl font-bold mb-2 text-center text-[#5d4037]">Navigating Belief Systems & Controversies</h2>
+            <p class="text-center text-lg text-[#8d6e63] mb-8 max-w-3xl mx-auto">The world of esoteric thought includes both revered traditional figures and highly controversial modern theories. This section encourages critical discernment by presenting divine archetypes alongside a critical analysis of contentious narratives, highlighting the importance of questioning sources.</p>
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">✨ Generate a Spiritual Shield</h3>
+                        <p class="text-center text-sm text-[#8d6e63] mb-4">Visualize your own energetic protection. Click the button to generate a unique image of a spiritual shield.</p>
+                        <div class="flex justify-center mb-4">
+                            <button id="generate-shield-btn" class="bg-[#D4AF37] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors">✨ Generate Shield</button>
+                        </div>
+                        <p id="shield-loading" class="loading-text text-center" style="display:none;">Conjuring your shield...</p>
+                        <div id="shield-output" class="p-4 mt-4 bg-[#F5F5DC] rounded-lg min-h-[250px] flex items-center justify-center">
+                            <img id="shield-image" class="w-full h-auto max-w-sm rounded-lg" style="display:none;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">Divine Archetypes & Prayer</h3>
+                        <p class="text-center text-sm text-[#8d6e63] mb-4">Select a divine personage to generate a personalized prayer for guidance and protection.</p>
+                         <div class="flex flex-col md:flex-row gap-4 mb-4">
+                             <select id="divine-personage-select" class="flex-grow p-2 border border-[#D4AF37] rounded-lg text-sm text-[#5d4037] bg-white">
+                                 <option value="Archangel Michael">Archangel Michael</option>
+                                 <option value="Archangel Raphael">Archangel Raphael</option>
+                                 <option value="Goddess of Compassion">Goddess of Compassion</option>
+                                 <option value="Nature Spirit">Nature Spirit</option>
+                             </select>
+                             <button id="generate-prayer-btn" class="bg-[#D4AF37] text-white py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors font-medium md:w-auto">✨ Generate Prayer</button>
+                         </div>
+                    </div>
+                    <div class="mt-4">
+                        <p id="prayer-loading" class="loading-text mt-4 text-center" style="display:none;">Thinking...</p>
+                        <div id="prayer-output" class="p-4 bg-[#F5F5DC] rounded-lg min-h-[50px] text-sm text-[#5d4037]"></div>
+                    </div>
+                </div>
+                <div id="icke-interactive" class="bg-[#FFF8E1] p-6 rounded-lg shadow-lg lg:col-span-2">
+                    <h3 class="text-2xl font-semibold text-center mb-4 text-[#5d4037]">Critique: David Icke & Reptilian Theory</h3>
+                    <div class="bg-[#F5F5DC] p-4 rounded-lg">
+                        <div id="icke-claim-content">
+                            <h4 class="font-bold text-lg mb-2">Claim: Reptilian Control</h4>
+                            <p class="text-sm text-[#8d6e63] mb-3">Shape-shifting reptilian aliens from Alpha Draconis secretly control Earth by possessing world leaders and manipulating society through a "Babylonian Brotherhood."</p>
+                            <hr class="border-[#D4AF37] my-2">
+                            <h4 class="font-bold text-lg mb-2">Critique</h4>
+                            <p class="text-sm text-[#8d6e63]">Viewed academically as irrational and a reconfiguration of New Age theodicy that externalizes blame. Critics widely accuse the theory of being a vehicle for antisemitic tropes, recasting them in an alien narrative.</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button id="next-claim-btn" class="bg-[#D4AF37] text-white py-2 px-4 rounded-lg hover:bg-[#b89a2e] transition-colors">Next Claim</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const mainNavButtons = document.querySelectorAll('.nav-button');
+    const mobileNav = document.getElementById('mobile-nav');
+    const contentSections = document.querySelectorAll('.content-section');
+    const generateEntityBtn = document.getElementById('generate-entity-btn');
+    const entityPromptInput = document.getElementById('entity-prompt-input');
+    const entityOutput = document.getElementById('entity-output');
+    const entityLoading = document.getElementById('entity-loading');
+    const generatePrayerBtn = document.getElementById('generate-prayer-btn');
+    const prayerOutput = document.getElementById('prayer-output');
+    const prayerLoading = document.getElementById('prayer-loading');
+    const generateMeditationBtn = document.getElementById('generate-meditation-btn');
+    const meditationOutput = document.getElementById('meditation-output');
+    const meditationLoading = document.getElementById('meditation-loading');
+    const generateShadowWorkBtn = document.getElementById('generate-shadow-work-btn');
+    const shadowOutput = document.getElementById('shadow-output');
+    const shadowLoading = document.getElementById('shadow-loading');
+    const generateLineageNarrativeBtn = document.getElementById('generate-lineage-narrative-btn');
+    const lineageOutput = document.getElementById('lineage-output');
+    const lineageLoading = document.getElementById('lineage-loading');
+    const generateShieldBtn = document.getElementById('generate-shield-btn');
+    const shieldImage = document.getElementById('shield-image');
+    const shieldLoading = document.getElementById('shield-loading');
+    const divinePersonageSelect = document.getElementById('divine-personage-select');
+
+
+    function switchTab(targetId) {
+        contentSections.forEach(section => {
+            section.classList.remove('active');
+        });
+        mainNavButtons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+        
+        const targetButton = document.querySelector(`.nav-button[data-target="${targetId}"]`);
+        if (targetButton) {
+            targetButton.classList.add('active');
+        }
+        
+        if(mobileNav.value !== targetId) {
+            mobileNav.value = targetId;
+        }
+    }
+
+    mainNavButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            switchTab(button.dataset.target);
+        });
+    });
+
+    mobileNav.addEventListener('change', (e) => {
+        switchTab(e.target.value);
+    });
+
+    switchTab('perception');
+
+    const entityData = {
+        daimon: {
+            title: "Daimon (Classical Greek)",
+            text: "A lesser deity or guiding spirit, not inherently evil. Daimons were seen as intermediaries between mortals and gods, and could be either benevolent or malevolent. Socrates claimed a daimon warned him against mistakes."
+        },
+        jinn: {
+            title: "Jinn (Islamic)",
+            text: "Supernatural beings with free will, like humans. They can be believers or disbelievers, and their interactions can be positive, negative, or neutral. They are naturally invisible but can shapeshift."
+        },
+        naga: {
+            title: "Naga (Hindu/Buddhist)",
+            text: "Semi-divine serpent beings, often depicted as half-human, half-cobra. They are powerful nature spirits associated with water and can be both benevolent guardians and dangerous adversaries."
+        },
+        demon: {
+            title: "Demon (Samael in Jewish Mysticism)",
+            text: "In later traditions, 'demon' refers to an evil spirit. Samael is a key figure, the 'Accuser' and angel of death. In Kabbalah, he is paired with Lilith and rules the realm of evil, though his origins are as a divine agent."
+        }
+    };
+
+    const entityRows = document.querySelectorAll('.entity-row');
+    const entityDetails = document.getElementById('entity-details');
+    entityRows.forEach(row => {
+        row.addEventListener('click', () => {
+            const entityKey = row.dataset.entity;
+            const data = entityData[entityKey];
+            entityDetails.innerHTML = `<h4 class="font-bold text-lg mb-2 text-[#5d4037]">${data.title}</h4><p class="text-sm text-[#8d6e63]">${data.text}</p>`;
+        });
+    });
+
+    const awakeningData = {
+        mind: "A sudden mental realization or epiphany that provides an 'enlightened' perspective on life.",
+        personality: "Actively moving past old, toxic patterns to develop self-acceptance, empowerment, and understanding.",
+        kundalini: "The activation of dormant life force energy, which can trigger profound changes on all levels: physical, mental, and spiritual.",
+        soul: "A deepening contact with one's Soul or Higher Self, leading to an experience of oneself as Eternal and Limitless."
+    };
+    
+    const awakeningNodes = document.querySelectorAll('#awakening-diagram .interactive-diagram-node');
+    const awakeningDetails = document.getElementById('awakening-details');
+    awakeningNodes.forEach(node => {
+        node.addEventListener('click', () => {
+            awakeningNodes.forEach(n => n.classList.remove('selected'));
+            node.classList.add('selected');
+            const key = node.dataset.awakening;
+            awakeningDetails.innerHTML = `<p class="text-sm text-[#5d4037]">${awakeningData[key]}</p>`;
+        });
+    });
+
+    const lineageData = {
+        starseed: "Individuals believed to have extraterrestrial origins, incarnated on Earth with a mission to help humanity's spiritual evolution.",
+        soulgroup: "A 'tribe' of souls who resonate on a deep energetic level and agree to help each other learn and grow across lifetimes.",
+        twinflame: "Considered two halves of the same soul, a twin flame connection is an intense bond meant to catalyze profound personal and spiritual growth.",
+        contract: "Agreements made between souls before birth to facilitate specific life lessons, challenges, and mutual development on Earth."
+    };
+
+    const lineageNodes = document.querySelectorAll('[data-lineage]');
+    const lineageDetails = document.getElementById('lineage-details');
+    lineageNodes.forEach(node => {
+        node.addEventListener('click', () => {
+            lineageNodes.forEach(n => n.classList.remove('selected'));
+            node.classList.add('selected');
+            const key = node.dataset.lineage;
+            lineageDetails.innerHTML = `<p class="text-sm text-[#5d4037]">${lineageData[key]}</p>`;
+        });
+    });
+
+    const ickeClaims = [
+        {
+            claim: "Claim: Reptilian Control",
+            critique: "Viewed academically as irrational and a reconfiguration of New Age theodicy that externalizes blame. Critics widely accuse the theory of being a vehicle for antisemitic tropes, recasting them in an alien narrative."
+        },
+        {
+            claim: "Claim: Energy Harvesting",
+            critique: "Asserts that Archons (Reptilians) feed off negative human energy (fear, hate). This lacks scientific basis and promotes a dualistic worldview that can absolve human responsibility for negativity."
+        },
+        {
+            claim: "Claim: Global Elite & NWO",
+            critique: "Claims a 'Babylonian Brotherhood' controls global institutions to create a fascist world state. This is a classic conspiracy theory that fosters distrust and has been criticized for its reliance on antisemitic claims about families like the Rothschilds."
+        }
+    ];
+    let currentClaimIndex = 0;
+    const nextClaimBtn = document.getElementById('next-claim-btn');
+    const ickeClaimContent = document.getElementById('icke-claim-content');
+
+    nextClaimBtn.addEventListener('click', () => {
+        currentClaimIndex = (currentClaimIndex + 1) % ickeClaims.length;
+        const claim = ickeClaims[currentClaimIndex];
+        ickeClaimContent.innerHTML = `
+            <h4 class="font-bold text-lg mb-2">Claim: ${claim.claim.split(': ')[1]}</h4>
+            <p class="text-sm text-[#8d6e63] mb-3">${claim.critique.split('.')[0]}.</p>
+            <hr class="border-[#D4AF37] my-2">
+            <h4 class="font-bold text-lg mb-2">Critique</h4>
+            <p class="text-sm text-[#8d6e63]">${claim.critique.split('.').slice(1).join('.')}</p>`;
+    });
+
+
+    const moralCtx = document.getElementById('moralChart');
+    if (moralCtx) {
+        new Chart(moralCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Daimon', 'Jinn', 'Naga', 'Demon/Samael'],
+                datasets: [{
+                    label: 'Moral Ambiguity Score (Higher = More Malevolent)',
+                    data: [3, 5, 6, 9],
+                    backgroundColor: ['#a1887f', '#8d6e63', '#6d4c41', '#4e342e'],
+                    borderColor: '#D4AF37',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: { color: 'rgba(212, 175, 55, 0.2)' },
+                        ticks: { color: '#5d4037' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#5d4037' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.x !== null) {
+                                    const entity = context.label;
+                                    let summary = '';
+                                    if(entity === 'Daimon') summary = 'Can be good or hostile.';
+                                    if(entity === 'Jinn') summary = 'Has free will; can be good or evil.';
+                                    if(entity === 'Naga') summary = 'Benevolent guardians or dangerous foes.';
+                                    if(entity === 'Demon/Samael') summary = 'Primarily adversarial/evil in later traditions.';
+                                    return summary;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const innerWorkCtx = document.getElementById('innerWorkChart');
+    if(innerWorkCtx) {
+        new Chart(innerWorkCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Shadow Work', 'Inner Child Work', 'Self-Love'],
+                datasets: [{
+                    data: [40, 35, 25],
+                    backgroundColor: ['#6d4c41', '#8d6e63', '#a1887f'],
+                    borderColor: '#FFF8E1',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#5d4037',
+                            padding: 20
+                        }
+                    },
+                    title: { display: false },
+                    tooltip: {
+                        bodyFont: { size: 12 },
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                let desc = '';
+                                if (label === 'Shadow Work') desc = 'Integrating disowned parts of the personality.';
+                                if (label === 'Inner Child Work') desc = 'Healing childhood wounds and beliefs.';
+                                if (label === 'Self-Love') desc = 'Cultivating compassion and self-acceptance.';
+                                return `${label}: ${desc}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // New Gemini API features
+    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=`;
+    const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=`;
+    
+    generateEntityBtn.addEventListener('click', async () => {
+        const promptText = entityPromptInput.value.trim();
+        if (!promptText) return;
+
+        entityLoading.style.display = 'block';
+        entityOutput.textContent = '';
+        generateEntityBtn.disabled = true;
+
+        const chatHistory = [{
+            role: "user",
+            parts: [{ text: `Generate a detailed and creative description of a mythical entity based on the following prompt: "${promptText}". The description should be engaging and imaginative, referencing its appearance, abilities, and connection to the spiritual or astral realm.` }]
+        }];
+        
+        try {
+            const response = await fetch(geminiApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: chatHistory })
+            });
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                const generatedText = result.candidates[0].content.parts[0].text;
+                entityOutput.innerHTML = `<p>${generatedText.replace(/\n/g, '<br>')}</p>`;
+            } else {
+                entityOutput.textContent = 'Sorry, I could not generate a description at this time. Please try again.';
+            }
+
+        } catch (error) {
+            entityOutput.textContent = 'An error occurred. Please check your network connection and try again.';
+        } finally {
+            entityLoading.style.display = 'none';
+            generateEntityBtn.disabled = false;
+        }
+    });
+
+    generatePrayerBtn.addEventListener('click', async () => {
+        prayerLoading.style.display = 'block';
+        prayerOutput.textContent = '';
+        generatePrayerBtn.disabled = true;
+        
+        const personage = divinePersonageSelect.value;
+        const promptText = `Write a short, heartfelt prayer to ${personage} asking for divine protection, courage, and guidance in navigating spiritual challenges. The prayer should be specific to the nature of ${personage}.`;
+
+        const chatHistory = [{
+            role: "user",
+            parts: [{ text: promptText }]
+        }];
+
+        try {
+            const response = await fetch(geminiApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: chatHistory })
+            });
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                const generatedText = result.candidates[0].content.parts[0].text;
+                prayerOutput.innerHTML = `<p class="italic">${generatedText.replace(/\n/g, '<br>')}</p>`;
+            } else {
+                prayerOutput.textContent = 'Sorry, I could not generate a prayer at this time. Please try again.';
+            }
+        } catch (error) {
+            prayerOutput.textContent = 'An error occurred. Please check your network connection and try again.';
+        } finally {
+            prayerLoading.style.display = 'none';
+            generatePrayerBtn.disabled = false;
+        }
+    });
+
+    generateMeditationBtn.addEventListener('click', async () => {
+        meditationLoading.style.display = 'block';
+        meditationOutput.textContent = '';
+        generateMeditationBtn.disabled = true;
+
+        const promptText = `Generate a unique, guided meditation script approximately 100-150 words long, focused on one of the following themes: exploring your psyche, tuning into your own energy, or connecting with your spirit guides. The tone should be calm and encouraging.`;
+
+        const chatHistory = [{
+            role: "user",
+            parts: [{ text: promptText }]
+        }];
+
+        try {
+            const response = await fetch(geminiApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: chatHistory })
+            });
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                const generatedText = result.candidates[0].content.parts[0].text;
+                meditationOutput.innerHTML = `<p class="italic">${generatedText.replace(/\n/g, '<br>')}</p>`;
+            } else {
+                meditationOutput.textContent = 'Sorry, I could not generate a meditation at this time. Please try again.';
+            }
+        } catch (error) {
+            meditationOutput.textContent = 'An error occurred. Please check your network connection and try again.';
+        } finally {
+            meditationLoading.style.display = 'none';
+            generateMeditationBtn.disabled = false;
+        }
+    });
+
+    generateShadowWorkBtn.addEventListener('click', async () => {
+        shadowLoading.style.display = 'block';
+        shadowOutput.textContent = '';
+        generateShadowWorkBtn.disabled = true;
+
+        const promptText = `Generate a specific and insightful journaling prompt for shadow work. The prompt should encourage introspection and focus on integrating a disowned part of the personality, such as anger, shame, or fear. The prompt should be a single question or a short statement.`;
+        
+        const chatHistory = [{
+            role: "user",
+            parts: [{ text: promptText }]
+        }];
+
+        try {
+            const response = await fetch(geminiApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: chatHistory })
+            });
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                const generatedText = result.candidates[0].content.parts[0].text;
+                shadowOutput.innerHTML = `<p>${generatedText.replace(/\n/g, '<br>')}</p>`;
+            } else {
+                shadowOutput.textContent = 'Sorry, I could not generate a prompt at this time. Please try again.';
+            }
+        } catch (error) {
+            shadowOutput.textContent = 'An error occurred. Please check your network connection and try again.';
+        } finally {
+            shadowLoading.style.display = 'none';
+            generateShadowWorkBtn.disabled = false;
+        }
+    });
+
+    generateLineageNarrativeBtn.addEventListener('click', async () => {
+        lineageLoading.style.display = 'block';
+        lineageOutput.textContent = '';
+        generateLineageNarrativeBtn.disabled = true;
+        
+        const promptText = `Write a short, immersive, and creative narrative (100-150 words) about a soul's journey. Choose randomly between a pre-birth contract or a twin flame journey, and detail the setting, emotions, and purpose of the connection. The tone should be mystical and inspiring.`;
+
+        const chatHistory = [{
+            role: "user",
+            parts: [{ text: promptText }]
+        }];
+
+        try {
+            const response = await fetch(geminiApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: chatHistory })
+            });
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                const generatedText = result.candidates[0].content.parts[0].text;
+                lineageOutput.innerHTML = `<p class="italic">${generatedText.replace(/\n/g, '<br>')}</p>`;
+            } else {
+                lineageOutput.textContent = 'Sorry, I could not generate a story at this time. Please try again.';
+            }
+        } catch (error) {
+            lineageOutput.textContent = 'An error occurred. Please check your network connection and try again.';
+        } finally {
+            lineageLoading.style.display = 'none';
+            generateLineageNarrativeBtn.disabled = false;
+        }
+    });
+    
+    generateShieldBtn.addEventListener('click', async () => {
+        shieldLoading.style.display = 'block';
+        shieldImage.style.display = 'none';
+        generateShieldBtn.disabled = true;
+
+        const prompt = `A powerful spiritual shield, a golden glowing shield with intricate protective symbols, against a dark void, surrounded by magical light effects, digital art.`;
+        const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1} };
+
+        try {
+            const response = await fetch(imageApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+
+            if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                const base64Data = result.predictions[0].bytesBase64Encoded;
+                const imageUrl = `data:image/png;base64,${base64Data}`;
+                shieldImage.src = imageUrl;
+                shieldImage.style.display = 'block';
+            } else {
+                shieldOutput.textContent = 'Sorry, I could not generate an image at this time.';
+            }
+        } catch (error) {
+            shieldOutput.textContent = 'An error occurred. Please check your network connection and try again.';
+        } finally {
+            shieldLoading.style.display = 'none';
+            generateShieldBtn.disabled = false;
+        }
+    });
+});
+</script>
+</body>
+</html>
